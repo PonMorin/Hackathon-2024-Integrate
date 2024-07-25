@@ -10,13 +10,18 @@ config = dotenv_values(".env")
 os.environ["OPENAI_API_KEY"] = config["openai_api"]
 os.environ["ANTHROPIC_API_KEY"] = config["ANTHROPIC_API_KEY"]
 
-def query_Plan(numSena, duration, food, menu):
+def query_Plan(numSena, duration, food, menu, totalMeals):
     model_plan_chain = model_Grocery(numSena)
     groceryList_path = './groceryList/groceryList.md'
     if os.path.exists(groceryList_path):
         os.remove(groceryList_path)
 
-    question_format = f"This is my duration that I want {duration} Day. And In my fridge nows have {food}. Please help me plan what I need to buy for my family. Specific menu is {menu}."
+    question_format = f"""
+    This is my duration that I want {duration} Day.\n 
+    And In my fridge nows have {food}.\n 
+    Specific menu is {menu} (If specific menu is None you can skip it).\n
+    Specific meals in one day: {totalMeals} (If specific meals is None default is Three Meals)\n
+    Please help me to plan what I need to buy for my family."""
     
     return model_plan_chain, question_format
 
@@ -25,7 +30,7 @@ def query_Waste(waste):
     question = f"This is the object that the user takes out of the refrigerator: {waste}. Can this {waste} be solds (Price (THB) / Kg), and how to make it most useful for selling in Thai Bath. But if you can't sell it, how to make it most useful?"
     return model_Waste_chain, question
 
-def ui_(duration):
+def ui_():
     with gr.Blocks() as demo:
         
         def user(user_msg, history):
@@ -33,36 +38,35 @@ def ui_(duration):
             history = history + [(user_msg, None)]
             return history, "" 
         
-        def plan_bot(history, duration, scenario, food):
-                print(duration)
-                # menu = history[-1][0]
-                # if any(word in menu for word in ['python', 'java']):
-                #     print("OK")
-                #     history[-1][1] = "I apologize, but according to the rules provided, I cannot assist with writing Python code or anything related to coding. My role is to help plan meals and provide a grocery list based on the given context and requirements. Let's move forward with that instead."
-                #     words = history[-1][1].split()
-                #     for chunk in words:
-                #         print(chunk, end="", flush=True)
-                #         history[-1][1] += chunk
-                #         yield history
-                # else:
-                #     frame, food, waste = gradio_webcam_interface()
+        def plan_bot(history, duration, scenario, food, meals):
+                menu = history[-1][0]
+                if any(word in menu for word in ['python', 'java']):
+                    print("OK")
+                    history[-1][1] = "I apologize, but according to the rules provided, I cannot assist with writing Python code or anything related to coding. My role is to help plan meals and provide a grocery list based on the given context and requirements. Let's move forward with that instead."
+                    words = history[-1][1].split()
+                    for chunk in words:
+                        print(chunk, end="", flush=True)
+                        history[-1][1] += chunk
+                        yield history
+                else:
+                    # frame, food, waste = gradio_webcam_interface()
                 
-                #     res, question_template = query_Plan(scenario, duration, food, menu)
-                #     history[-1][1] = ""
-                #     question = question_template 
+                    res, question_template = query_Plan(scenario, duration, food, menu, meals)
+                    history[-1][1] = ""
+                    question = question_template 
 
-                #     groceryList_path = './groceryList/groceryList.md'
-                #     for chunk in res.stream(question):
-                #         print(chunk, end="", flush=True)
-                #         history[-1][1] += chunk
-                #         yield history
-                #         with open(groceryList_path, 'a') as file:
-                #             file.write(chunk)
+                    groceryList_path = './groceryList/groceryList.md'
+                    for chunk in res.stream(question):
+                        print(chunk, end="", flush=True)
+                        history[-1][1] += chunk
+                        yield history
+                        with open(groceryList_path, 'a') as file:
+                            file.write(chunk)
                     
-                # return history
+                return history
         
-        def waste_bot():
-            _, _, waste = gradio_webcam_interface()
+        def waste_bot(waste):
+            # _, _, waste = gradio_webcam_interface()
             res, question = query_Waste(waste)
             if len(waste) != 0:
                 print(waste)
@@ -77,7 +81,8 @@ def ui_(duration):
         chatbot = gr.Chatbot(elem_id="chatbot-container", show_copy_button=True)
         markdown = gr.Markdown("")
         current_food = gr.HTML("")
-        result = gr.HTML("")
+        result = gr.HTML("", visible=True)
+        remove = gr.HTML("", visible=True)
         duration = gr.Dropdown([str(i) for i in range(1, 8)], label="Planning Range", info="choose between 1 - 7 days")
         total_meals = gr.CheckboxGroup(["Breakfast", "Lunch", "Dinner"], label="How many meals", info="in one day")
         scenario = gr.Radio(["1", "2", "3"], label="Examples Scenario", info="depends on their behaviors")
@@ -101,16 +106,24 @@ def ui_(duration):
             outputs=[chatbot, msg]
         ).then(
             fn=plan_bot,
-            inputs=[chatbot, duration, scenario, result],
+            inputs=[chatbot, duration, scenario, result, total_meals],
             outputs=chatbot
         )
         
         clear.click(lambda: None, None, chatbot, queue=False)
         
         # Waste Event
-        camera_cap.click(waste_bot, None, markdown)
+        camera_cap.click(
+            fn=gradio_webcam_interface,
+            inputs=None,
+            outputs=remove
+        ).then(
+            fn=waste_bot,
+            inputs=[remove],
+            outputs=markdown
+        )
         
     demo.launch()
 if __name__ == "__main__":
-    duration = 2
-    ui_(duration)
+    # duration = 2
+    ui_()
