@@ -3,7 +3,7 @@ import gradio as gr
 import json
 from ultralytics import YOLO
 from deepdiff import DeepDiff
-from .food_list import food_list
+from .food_list import foodList
 
 DEBUG = 0
 
@@ -105,7 +105,7 @@ def json_transform(json_result):
 
 def gradio_webcam_interface():
     frame = capture_frame()
-    
+    food_list = foodList()
     if frame is not None:
         json_result, val_rem = detect_ingredients(frame)
         detected_result = json_transform(json_result)
