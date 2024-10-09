@@ -29,7 +29,12 @@ source env/bin/activate
 ```
 pip install -r requirements.txt
 ```
-
+4. set enviroment for api key
+Create a .env file and add the following content to it:
+```
+openai_api = "Keys"
+ANTHROPIC_API_KEY = "Keys"
+```
 ### Step 2: Create Vector Database and Store Data
 1. Store Family Scenario
 ```
