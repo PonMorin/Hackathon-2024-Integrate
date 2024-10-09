@@ -12,15 +12,21 @@ os.environ["OPENAI_API_KEY"] = config["openai_api"]
 os.environ["ANTHROPIC_API_KEY"] = config["ANTHROPIC_API_KEY"]
 
 def model_Grocery(num_seenario):
+    
     dataFamily = f"./Data/familyData{num_seenario}"
     vectordb = Chroma(persist_directory=dataFamily, embedding_function=OpenAIEmbeddings())
     retriever = vectordb.as_retriever()
 
-    planer_agent = ChatAnthropic(model="claude-3-sonnet-20240229",
+    planer_agent = ChatAnthropic(model="claude-3-5-sonnet-20240620",
                         temperature=0.9,
                         max_tokens_to_sample= 1500
                         )
 
+    # Please check how the people in your family eat(e.g. People who eat only breakfast and dinner) and who is not at home.
+
+    # Before Create Menu and Grocery List: Make a result you must tell user know what food that leftovers in the fridge.
+
+    # Output must based on context (Family Scenario), Number of people in the household, Behavior of people in the house, User duration require, Food that leftovers in the fridge don't add to Grocery List and Grocery List format to check list based on menu that you suggest and always end of sentens you must use this 'Have fun, You can always ask me anything.'.
     planer_systemPrompt = """
     You are food planer management expert. You will only answer plan meal (breakfast, Lunch and Dinner) follow user context. ```You need to recommend a menu for the number of days the user wants.``` and then ```*Must*you must suggest quantity to purchase(e.g. apple 1 piece) that's enough for the whole number of peoplein the household.```
     `````
@@ -34,17 +40,11 @@ def model_Grocery(num_seenario):
     """
 
     planer_prompt_Template = """
-    Answer the question base only on the following context (Family Scenario): {context}
-
-    Please check how the people in your family eat(e.g. People who eat only breakfast and dinner) and who is not at home.
-
-    Before Create Menu and Grocery List: Make a result you must tell user know what food that leftovers in the fridge.
-
-    Output must based on context (Family Scenario), Number of people in the household, Behavior of people in the house, User duration require, Food that leftovers in the fridge don't add to Grocery List and Grocery List format to check list based on menu that you suggest and always end of sentens you must use this 'Have fun, You can always ask me anything.'.
+    Answer the question base only on the following context (Family Behavior): {context}
 
     ```
     output Template:
-
+   `Tell information somthing to user`
     # Leftovers in the Fridge 🧊
         -
         -
@@ -84,9 +84,8 @@ def model_Waste():
     vectordb = Chroma(persist_directory=dataWaste, embedding_function=OpenAIEmbeddings())
     retriever = vectordb.as_retriever()
 
-    waste_management_agent = ChatAnthropic(model="claude-3-sonnet-20240229",
+    waste_management_agent = ChatAnthropic(model="claude-3-5-sonnet-20240620",
                         temperature=0.9,
-                        top_p= 0.8,
                         max_tokens_to_sample= 2000
                         )
 
@@ -98,7 +97,7 @@ def model_Waste():
         1. if object is a `Every Cans` it mention Aluminum Cans  
         2. if object is a `Food` ,plastic wrap may be used to store food. You must also consider the plastic waste that is generated and tell user How to deal with plastic that occurs.
         3. if you don't know how many selling price of user object you must told user `Cannot be sold for income`
-        4. Selling price use must give information that is value of object(e.g. Cola Cans: 60.00 THB, Bread: Cannot be sold for income).
+        4. Selling price use must give information that is value of object(e.g. Cola Cans or Aluminum Cans: 60.00 THB, Bread: Cannot be sold for income).
         5. Output of how to best manage food waste and other waste you must give benefit information that more than 2 steps Maximum is 5 steps.
     """
 

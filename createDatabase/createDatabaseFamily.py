@@ -10,8 +10,7 @@ config = dotenv_values(".env")
 os.environ["OPENAI_API_KEY"] = config["openai_api"]
 os.environ["ANTHROPIC_API_KEY"] = config["ANTHROPIC_API_KEY"]
 
-tarPath = "./Doc/FamilyScenario/Case3" 
-def load_document():
+def load_document(tarPath):
     for root, dirs, files in os.walk(tarPath): 
         for file in files:
             full_path = os.path.join(root, file) 
@@ -44,10 +43,13 @@ def split_text(documents):
     print(documents.metadata)
     return chunks
 
-Family_docs = load_document() 
-chcks_of_Family = split_text(Family_docs)
+if __name__ == "__main__":
+    for i in range(1, 4):
+        tarPath = f"./Doc/FamilyScenario/Case{i}" 
+        Family_docs = load_document(tarPath) 
+        chcks_of_Family = split_text(Family_docs)
 
-dataFamily = "./Data/familyData3"
-vectordb = Chroma.from_documents(chcks_of_Family, embedding=OpenAIEmbeddings(), persist_directory=dataFamily)
-vectordb.persist()
-print(f"Saved {len(chcks_of_Family)} chunks to {dataFamily}.")
+        dataFamily = f"./TestData/familyData{i}"
+        vectordb = Chroma.from_documents(chcks_of_Family, embedding=OpenAIEmbeddings(), persist_directory=dataFamily)
+        vectordb.persist()
+        print(f"Saved {len(chcks_of_Family)} chunks to {dataFamily}.")

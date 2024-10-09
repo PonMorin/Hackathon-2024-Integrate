@@ -15,13 +15,27 @@ def query_Plan(numSena, duration, food, menu, totalMeals):
     groceryList_path = './groceryList/groceryList.md'
     if os.path.exists(groceryList_path):
         os.remove(groceryList_path)
+    print("menu", menu)
+    if duration != None or duration != '' or duration != " ":
+        question_format = f"""
+        From My Family behavior please help me to plan what I need to buy for my family. I will give you information from below please use this to apply your result.\n
 
-    question_format = f"""
-    This is my duration that I want {duration} Day.\n 
-    And In my fridge nows have {food}.\n 
-    Specific menu is {menu} (If specific menu is None you can skip it).\n
-    Specific meals in one day: {totalMeals} (If specific meals is None default is Three Meals)\n
-    Please help me to plan what I need to buy for my family."""
+        This is my optional that I provide:
+            This is my duration that I want, {duration} Day.\n 
+            And In my fridge nows have {food} (if in my fridge have a food please don't suggest that I have but please plan a menu for clear a food that leftover).\n 
+            Specific menu is {menu} (If specific menu is None you can skip it).\n
+            Specific meals per one day: {totalMeals} (If specific meals is None default is Three Meals)\n
+        """
+    else:
+        question_format = f"""
+        From My Family behavior please help me to plan what I need to buy for my family. I will give you information from below please use this to apply your result.\n
+
+        This is my optional that I provide:
+            This is my duration that I want, 7 Day.\n 
+            And In my fridge nows have {food} (if in my fridge have a food please don't suggest that I have but please plan a menu for clear a food that leftover).\n 
+            Specific menu is {menu} (If specific menu is None you can skip it).\n
+            Specific meals per one day: {totalMeals} (If specific meals is None default is Three Meals)\n
+        """
     
     return model_plan_chain, question_format
 
@@ -81,8 +95,8 @@ def ui_():
         chatbot = gr.Chatbot(elem_id="chatbot-container", show_copy_button=True)
         markdown = gr.Markdown("")
         current_food = gr.HTML("")
-        result = gr.HTML("", visible=True)
-        remove = gr.HTML("", visible=True)
+        result = gr.HTML("", visible=False)
+        remove = gr.HTML("", visible=False)
         duration = gr.Dropdown([str(i) for i in range(1, 8)], label="Planning Range", info="choose between 1 - 7 days")
         total_meals = gr.CheckboxGroup(["Breakfast", "Lunch", "Dinner"], label="How many meals", info="in one day")
         scenario = gr.Radio(["1", "2", "3"], label="Examples Scenario", info="depends on their behaviors")
@@ -92,7 +106,7 @@ def ui_():
             generate = gr.Button("Start Plan 🥗")
             camera_cap = gr.Button("Close Fridge")
             clear = gr.Button("Clear")
-
+        
         # Planer Event
         # msg.submit(user, [msg, chatbot], [chatbot, msg], queue=False).then(plan_bot, chatbot, chatbot)
         # generate.click(user, [msg, chatbot], [chatbot, msg], queue=False).then(plan_bot, [chatbot, duration, scenario], chatbot)
@@ -116,7 +130,7 @@ def ui_():
         camera_cap.click(
             fn=gradio_webcam_interface,
             inputs=None,
-            outputs=remove
+            outputs=[result, current_food, remove]
         ).then(
             fn=waste_bot,
             inputs=[remove],

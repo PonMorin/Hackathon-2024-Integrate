@@ -110,13 +110,13 @@ def gradio_webcam_interface(scenario, duration, food_chose):
             print(food_list[i]["name"], food_list[i]["imgPath"])
             template += f"""
                 <div style='display: flex; justify-content: space-around; align-items: center;'>
-                    <img src="{food_list[i]["imgPath"]}" alt="{food_list[i]["name"]}" style='width: 50px; heigth: auto;' />
-                    <h3 style='color: black; margin-left: 10px'>{food_list[i]["name"]}</h3>
+                    <img src="{food_list[i]["imgPath"]}" alt="{food_list[i]["name"]}" style='width: 100px; heigth: auto;' />
+                    <h1 style='color: black; margin-left: 10px'>{food_list[i]["name"]}</h1>
                 </div>
             """
         
         html_result = f"""
-            <div style='display: flex; justify-content: space-around; align-items: center; height: 300px; width: 100%; background-color: white; border-radius: 25px; flex-wrap: wrap;'>
+            <div style='display: flex; justify-content: space-around; align-items: center; height: 150px; width: 100%; background-color: white; border-radius: 25px; flex-wrap: wrap;'>
                 {template}
             </div>
             """
