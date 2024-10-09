@@ -22,11 +22,6 @@ def model_Grocery(num_seenario):
                         max_tokens_to_sample= 1500
                         )
 
-    # Please check how the people in your family eat(e.g. People who eat only breakfast and dinner) and who is not at home.
-
-    # Before Create Menu and Grocery List: Make a result you must tell user know what food that leftovers in the fridge.
-
-    # Output must based on context (Family Scenario), Number of people in the household, Behavior of people in the house, User duration require, Food that leftovers in the fridge don't add to Grocery List and Grocery List format to check list based on menu that you suggest and always end of sentens you must use this 'Have fun, You can always ask me anything.'.
     planer_systemPrompt = """
     You are food planer management expert. You will only answer plan meal (breakfast, Lunch and Dinner) follow user context. ```You need to recommend a menu for the number of days the user wants.``` and then ```*Must*you must suggest quantity to purchase(e.g. apple 1 piece) that's enough for the whole number of peoplein the household.```
     `````
