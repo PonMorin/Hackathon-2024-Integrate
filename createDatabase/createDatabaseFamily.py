@@ -10,7 +10,7 @@ config = dotenv_values(".env")
 os.environ["OPENAI_API_KEY"] = config["openai_api"]
 os.environ["ANTHROPIC_API_KEY"] = config["ANTHROPIC_API_KEY"]
 
-tarPath = "./Doc/FamilyScenario/Case2" 
+tarPath = "./Doc/FamilyScenario/Case3" 
 def load_document():
     for root, dirs, files in os.walk(tarPath): 
         for file in files:
@@ -32,9 +32,10 @@ def load_document():
             # loader = PyPDFLoader(full_path) 
             # documents = loader.load() 
         return documents
+    
 def split_text(documents):
     text_spliter = RecursiveCharacterTextSplitter(
-    chunk_size=900, chunk_overlap=450, length_function=len, add_start_index=True,
+    chunk_size=500, chunk_overlap=250, length_function=len, add_start_index=True,
     )
     chunks = text_spliter.split_documents(documents)
     print(f"Split {len(documents)} documents into {len(chunks)} chuncks.") 
@@ -46,7 +47,7 @@ def split_text(documents):
 Family_docs = load_document() 
 chcks_of_Family = split_text(Family_docs)
 
-dataFamily = "./Data/familyData2"
+dataFamily = "./Data/familyData3"
 vectordb = Chroma.from_documents(chcks_of_Family, embedding=OpenAIEmbeddings(), persist_directory=dataFamily)
 vectordb.persist()
 print(f"Saved {len(chcks_of_Family)} chunks to {dataFamily}.")
