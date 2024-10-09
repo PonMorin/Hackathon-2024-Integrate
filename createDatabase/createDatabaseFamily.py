@@ -44,6 +44,7 @@ def split_text(documents):
     return chunks
 
 if __name__ == "__main__":
+    # Create 3 Database
     for i in range(1, 4):
         tarPath = f"./Doc/FamilyScenario/Case{i}" 
         Family_docs = load_document(tarPath) 
