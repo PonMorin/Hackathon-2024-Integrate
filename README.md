@@ -44,7 +44,7 @@ python3 createDatabase/createDatabase_Waste.py
 ```
 python3 integrate/calibrate-cam.py
 ```
-After running this command, **wait approximately 10 seconds** and then press Ctrl + C
+After running this command, **wait approximately 10 seconds** and then press Ctrl + C or Press the `Q` key on your keyboard.
 
 ### Step 4: Run Application
 ```
