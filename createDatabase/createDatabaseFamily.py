@@ -50,7 +50,7 @@ if __name__ == "__main__":
         Family_docs = load_document(tarPath) 
         chcks_of_Family = split_text(Family_docs)
 
-        dataFamily = f"./TestData/familyData{i}"
+        dataFamily = f"./Data/familyData{i}"
         vectordb = Chroma.from_documents(chcks_of_Family, embedding=OpenAIEmbeddings(), persist_directory=dataFamily)
         vectordb.persist()
         print(f"Saved {len(chcks_of_Family)} chunks to {dataFamily}.")
